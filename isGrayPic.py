@@ -39,7 +39,7 @@ def get_color_Scatter(url):
             pixelCol = [int(r),int(g),int(b)]
             pixelCol.sort()
             if pixelCol[2] - pixelCol[0] > maxColorScatter:
-                maxColorScatter = pixelCol[2] - pixelCol[0]
+                maxColorScatter += pixelCol[2] - pixelCol[0]
                 
     #remove resize picture
     try:
@@ -47,7 +47,7 @@ def get_color_Scatter(url):
     except:
         print(url + " delete failed!")
         
-    return maxColorScatter
+    return maxColorScatter/(width*height)
         
 #if picpath is directory,get all pictures.
 def getPicFiles(dirPath):
@@ -62,7 +62,7 @@ def getPicFiles(dirPath):
 def isGrayPic(picpath,scatterSize=0,resizePath = "",resizeType = "y",resizeLenth = 250):
     
     #check input value
-    if not scatterSize in range(256):
+    if scatterSize < 0 or scatterSize > 255:
         return "wrong scatterSize"
     if not os.path.isdir(resizePath):
         os.mkdir(resizePath)
