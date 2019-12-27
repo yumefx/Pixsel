@@ -38,8 +38,9 @@ def get_color_Scatter(url):
             r,g,b = pix.getpixel((x,y))
             pixelCol = [int(r),int(g),int(b)]
             pixelCol.sort()
-            if pixelCol[2] - pixelCol[0] > maxColorScatter:
-                maxColorScatter += pixelCol[2] - pixelCol[0]
+            #if pixelCol[2] - pixelCol[0] > maxColorScatter:    #it is find max scatter,now use average scatter
+            #    maxColorScatter = pixelCol[2] - pixelCol[0]
+            maxColorScatter += pixelCol[2] - pixelCol[0]
                 
     #remove resize picture
     try:
