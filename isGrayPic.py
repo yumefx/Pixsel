@@ -27,7 +27,7 @@ def changeSize(url,resizeDir = "",resizeDirect = "y",resizePixel = 250):
     
 def get_color_Scatter(url):
     img = Image.open(url)
-    pix = im.convert("RGB")
+    pix = img.convert("RGB")
     width = img.size[0]
     height = img.size[1]
         
@@ -47,10 +47,12 @@ def get_color_Scatter(url):
     except:
         print(url + " delete failed!")
         
+    return maxColorScatter
+        
 #if picpath is directory,get all pictures.
 def getPicFiles(dirPath):
     pics = []
-    for root,files,dirs in os.walk(dirPath):
+    for root,dirs,files in os.walk(dirPath):
         for f in files:
             if f.split(".")[-1].lower() in ["bmp","jpg","jpeg","png","tiff"]:
                 pics.append(os.path.join(root,f))
