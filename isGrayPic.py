@@ -9,7 +9,11 @@ from PIL import Image
 
 #reduce pixels,to get scatter fast
 def changeSize(url,resizeDir = "",resizeDirect = "y",resizePixel = 250):
-    img = Image.open(url)
+    img = 0
+    try:
+        img = Image.open(url)
+    except:
+        return 0
     width = img.size[0]
     height = img.size[1]
 
@@ -18,15 +22,23 @@ def changeSize(url,resizeDir = "",resizeDirect = "y",resizePixel = 250):
         newpath = os.path.join(os.path.dirname(url),"resize_" + imgName)
     else:
         newpath = os.path.join(resizeDir,"resize_" + os.path.basename(url))
-        
-    if resizeDirect == "y":
-        img.resize((int(width/(height/resizePixel)),resizePixel)).save(newpath)
-    else:
-        img.resize((resizePixel,int(height/(width/resizePixel)))).save(newpath)
+    try:
+        if resizeDirect == "y":
+            img.resize((int(width/(height/resizePixel)),resizePixel)).save(newpath)
+        else:
+            img.resize((resizePixel,int(height/(width/resizePixel)))).save(newpath)
+    except:
+        return 0
     return newpath
     
 def get_color_Scatter(url):
-    img = Image.open(url)
+    if url == 0:
+        return -1
+    img = 0
+    try:
+        img = Image.open(url)
+    except:
+        return -1
     pix = img.convert("RGB")
     width = img.size[0]
     height = img.size[1]
@@ -83,12 +95,14 @@ def isGrayPic(picpath,scatterSize=0,resizePath = "",resizeType = "y",resizeLenth
             return False
         else:
             return True
+    else:
+        return "wrong file"
         
     #when path is directory,return json
-    elif os.path.isdir(picpath):
-        picScatters = {}
-        picfiles = getPicFiles(picpath)
-        for pf in picfiles:
-            picScatters[pf] = get_color_Scatter(changeSize(pf,resizeDir = resizePath,resizeDirect = resizeType,resizePixel = resizeLenth))
-        return picScatters
+    #elif os.path.isdir(picpath):
+    #    picScatters = {}
+    #    picfiles = getPicFiles(picpath)
+    #    for pf in picfiles:
+    #        picScatters[pf] = get_color_Scatter(changeSize(pf,resizeDir = resizePath,resizeDirect = resizeType,resizePixel = resizeLenth))
+    #    return picScatters
         
