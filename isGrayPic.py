@@ -6,9 +6,44 @@
 
 import os
 from PIL import Image
+import win32api,win32con,win32gui
+
+#change image type to jpg
+def imgConvertJpg(img,path=""):
+    image = Image.open(img)
+    image = image.convert("RGB")
+    imgName = os.path.basename(img)
+    newName = imgName[:imgName.rindex(".")] + ".jpg"
+    if path == "":
+        path = os.path.dirname(img)
+    newImagePath = os.path.join(path,newName)
+    image.save(newImagePath)
+    return newImagePath
+    
+#set Wallpaper,only support [".jpg",".bmp"]
+def setWallpaper(imgpath):
+    win32gui.SystemParametersInfo(win32con.SPI_SETDESKWALLPAPER,imgpath,1+2)
+    
+#set Wallpaper parameter,use fill to fit the desktop proportionally
+def setWallpaperInit():
+    key = win32api.RegOpenKeyEx(win32con.HKEY_CURRENT_USER,r"Control Panel\Desktop",0,win32con.KEY_SET_VALUE)
+    win32api.RegSetValueEx(key,"WallpaperStyle",0,win32con.REG_SZ,"6")
+    win32api.RegSetValueEx(key,"TileWallpaper",0,win32con.REG_SZ,"0")
 
 #reduce pixels,to get scatter fast
 def changeSize(url,resizeDir = "",resizeDirect = "y",resizePixel = 250):
+    #check input value
+    if not os.path.isdir(resizeDir):
+        os.mkdir(resizeDir)
+    if not resizeDirect in ["x","y"]:
+        return "wrong resizeType"
+    if type(resizePixel) != int:
+        return "wrong resizeLenth type"
+    if resizePixel <= 0 :
+        return "wrong resizeLenth"
+    if not os.path.exists(url):
+        return "wrong path"
+    
     img = 0
     try:
         img = Image.open(url)
@@ -44,23 +79,19 @@ def get_color_Scatter(url):
     height = img.size[1]
         
     maxColorScatter = 0
+    avrColorScatter = 0
     for x in range(width):
         for y in range(height):
             #get pixel color scatter
             r,g,b = pix.getpixel((x,y))
             pixelCol = [int(r),int(g),int(b)]
             pixelCol.sort()
-            #if pixelCol[2] - pixelCol[0] > maxColorScatter:    #it is find max scatter,now use average scatter
-            #    maxColorScatter = pixelCol[2] - pixelCol[0]
-            maxColorScatter += pixelCol[2] - pixelCol[0]
-                
-    #remove resize picture
-    try:
-        os.remove(url)
-    except:
-        print(url + " delete failed!")
-        
-    return maxColorScatter/(width*height)
+            pixColMinus = pixelCol[2] - pixelCol[0]
+            if pixColMinus > maxColorScatter:    #it is find max scatter,now use average scatter
+               maxColorScatter = pixColMinus
+            avrColorScatter += pixColMinus
+    avrColorScatter = avrColorScatter/(width*height)
+    return avrColoScatter,maxColorScatter
         
 #if picpath is directory,get all pictures.
 def getPicFiles(dirPath):
@@ -71,38 +102,25 @@ def getPicFiles(dirPath):
                 pics.append(os.path.join(root,f))
     return pics
 
-#main
-def isGrayPic(picpath,scatterSize=0,resizePath = "",resizeType = "y",resizeLenth = 250):
-    
-    #check input value
+#try to delete temp file
+def tryDelPic(url):
+    try:
+        os.remove(resizePicPath)
+    except:
+        print(resizePicPath + " delete failed!")
+
+#judge pic is gray or not
+def isGrayPic(picpath,scatterSize = 0):
     if scatterSize < 0 or scatterSize > 255:
         return "wrong scatterSize"
-    if not os.path.isdir(resizePath):
-        os.mkdir(resizePath)
-    if not resizeType in ["x","y"]:
-        return "wrong resizeType"
-    if type(resizeLenth) != int:
-        return "wrong resizeLenth type"
-    if resizeLenth <= 0 :
-        return "wrong resizeLenth"
-    if not os.path.exists(picpath):
-        return "wrong path"
-    
     #when path is file,return bool
     if os.path.isfile(picpath):
-        resizePicPath = changeSize(picpath,resizeDir = resizePath,resizeDirect = resizeType,resizePixel = resizeLenth) 
-        if get_color_Scatter(resizePicPath) > scatterSize:
+        avrScatter,maxScatter = get_color_Scatter(PicPath)
+        if avrScatter > scatterSize or maxScatter > scatterSize:
             return False
         else:
             return True
     else:
         return "wrong file"
         
-    #when path is directory,return json
-    #elif os.path.isdir(picpath):
-    #    picScatters = {}
-    #    picfiles = getPicFiles(picpath)
-    #    for pf in picfiles:
-    #        picScatters[pf] = get_color_Scatter(changeSize(pf,resizeDir = resizePath,resizeDirect = resizeType,resizePixel = resizeLenth))
-    #    return picScatters
         
