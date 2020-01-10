@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time : 2019/12/27 12:08
 # @Author : yumefx
-# @File : isGrayPic.py
+# @File : PixSel.py
 
 import os
 from PIL import Image
